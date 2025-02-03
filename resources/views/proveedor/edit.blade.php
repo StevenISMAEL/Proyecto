@@ -58,6 +58,18 @@
                                     <option value="0" {{$proveedor->activo ? '' : 'selected'}}>No</option>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <input type="text" name="notas_proveedor" id="notas_proveedor" class="form-control input-sm" value="{{$proveedor->notas_proveedor}}" placeholder="notas_proveedor">
+                            </div>
+                            <div class="form-group">
+                                <label for="created_at">Fecha de Creación</label>
+                                <input type="text" name="created_at" id="created_at" class="form-control" value="{{ $proveedor->created_at }}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="updated_at">Última Fecha de Edición</label>
+                                <input type="text" name="updated_at" id="updated_at" class="form-control" value="{{ $proveedor->updated_at }}" readonly>
+                            </div>
+                            
                             <div class="row">
                                 <div class="col-xs-12 col-sm-12 col-md-12">
                                     <input type="submit" value="Actualizar" class="btn btn-success btn-block">

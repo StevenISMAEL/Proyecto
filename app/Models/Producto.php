@@ -9,40 +9,35 @@ class Producto extends Model
 {
     use HasFactory;
 
-    // Especifica la tabla asociada al modelo
+    // Tabla asociada
     protected $table = 'productos';
 
-    // Especifica la clave primaria (si no es 'id', en este caso 'codigo')
-    protected $primaryKey = 'codigo';
+    // Clave primaria
+    protected $primaryKey = 'codigo_pro';
 
-    // Especifica si la clave primaria es un valor autoincrementable
+    // Clave primaria no incremental (UUID o similar)
     public $incrementing = false;
 
-    // Especifica los atributos que pueden ser asignados masivamente
+    // Tipo de la clave primaria
+    protected $keyType = 'string';
+
+    // Campos asignables en la tabla
     protected $fillable = [
-        'codigo',
-        'nombre',
-        'descripcion',
-        'tipo_producto',
-        'precio_unitario',
-        'estado',
-        'alimenticio',
-        'fecha_creacion',
+        'codigo_pro',
+        'nombre_pro',
+        'descripcion_pro',
+        'alimenticio_pro',
+        'precio_unitario_pro'
     ];
 
-    // Especifica los tipos de datos de los atributos
-    protected $casts = [
-        'alimenticio' => 'boolean',
-        'precio_unitario' => 'decimal:2',
-        'fecha_creacion' => 'datetime',
-    ];
+    // Relación uno a muchos: un producto tiene muchos detalles
+    public function detalles()
+    {
+        return $this->hasMany(DetalleProducto::class, 'codigo_pro', 'codigo_pro');
+    }
+    public function kardex()
+{
+    return $this->hasMany(Kardex::class, 'codigo_pro', 'codigo_pro');
+}
 
-    // Si necesitas hacer algo al crear o actualizar, puedes agregar los siguientes métodos:
-    // protected static function boot()
-    // {
-    //     parent::boot();
-    //     static::creating(function ($producto) {
-    //         // Hacer algo antes de que se cree el producto
-    //     });
-    // }
 }

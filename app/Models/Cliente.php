@@ -9,23 +9,25 @@ class Cliente extends Model
 {
     use HasFactory;
 
-    // La tabla 'clientes' tiene una clave primaria que no es un incremento automático, por lo que lo especificamos
-    protected $primaryKey = 'id_cliente';
+    // Nombre de la tabla en la base de datos
+    protected $table = 'clientes';
+
+    // Definir la clave primaria
+    protected $primaryKey = 'cedula_cli'; // Se usa la cédula como clave primaria
+
+    // Deshabilitar la auto-incrementación, ya que usas una clave primaria no autoincrementable
     public $incrementing = false;
 
-    
+    // Campos que se pueden asignar masivamente
+    protected $fillable = [
+        'cedula_cli',
+        'nombre_cli',
+        'direccion_cli',
+        'telefono_cli',
+        'correo_cli',
+        'fecha_registro_cli',
+    ];
 
-    // Desactivamos el uso de los campos 'created_at' y 'updated_at' solo si no los necesitas
-    public $timestamps = true; // Laravel maneja esto automáticamente
-    protected $keyType = 'string';
-
-    // Los campos que se pueden asignar masivamente
-    protected $fillable = ['id_cliente', 'nombre', 'direccion', 'telefono', 'email', 'fecha_registro'];
-
-    // Si necesitas que 'fecha_registro' se maneje como una fecha de Carbon
-    protected $dates = ['fecha_registro'];
-
-    // Si deseas que 'id_cliente' se trate como un string, aseguramos que no se trate como un número autoincremental
-
-    // Si no quieres que Eloquent intente convertir 'id_cliente' a tipo entero
+    // Puedes agregar relaciones si es necesario, por ejemplo, con ventas
 }
+

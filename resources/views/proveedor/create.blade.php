@@ -57,6 +57,13 @@
                                     <option value="0">No</option>
                                 </select>
                             </div>
+                            <div class="col-xs-6 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="notas_proveedor" id="notas_proveedor" class="form-control input-sm" placeholder="Apuntes del proveedor" required>
+                                </div>
+                            </div>
+                            
+                            
                             <div class="row">
                                 <div class="col-xs-12 col-sm-12 col-md-12">
                                     <input type="submit" value="Guardar" class="btn btn-success btn-block">

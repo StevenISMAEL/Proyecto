@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('proveedores', function (Blueprint $table) {
             $table->string('ruc', 13)->primary(); 
-            $table->string('nombre', 100);
+            $table->string('nombre', 100)->nullable();
             $table->string('correo', 100)->nullable();
             $table->string('telefono', 20)->nullable();
             $table->string('direccion', 255)->nullable();
             $table->boolean('activo')->default(true); 
-            $table->timestamps(); 
+            $table->string('notas_proveedor', 500)->nullable(); 
+            $table->timestamps(); // Esto agrega created_at y updated_at
         });
     }
 

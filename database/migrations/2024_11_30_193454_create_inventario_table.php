@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Migrations\Migration;  
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nombre_producto', 40)->nullable(); 
             $table->decimal('cantidad_disponible', 10, 2); 
             $table->timestamp('fecha_registro')->useCurrent(); 
-            $table->timestamps(); 
+            $table->timestamps(); // Esto añade created_at y updated_at
         });
     }
 

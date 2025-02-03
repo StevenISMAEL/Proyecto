@@ -46,6 +46,8 @@ class ProveedorController extends Controller
             'telefono' => 'nullable|string|max:20',
             'direccion' => 'nullable|string|max:255',
             'activo' => 'required|boolean',
+            'notas_proveedor'=> 'required|string|max:500',
+            
         ]);
 
         // Crear el proveedor con los datos validados
@@ -97,6 +99,7 @@ class ProveedorController extends Controller
             'telefono' => 'nullable|string|max:20',
             'direccion' => 'nullable|string|max:255',
             'activo' => 'required|boolean',
+            'notas_proveedor'=> 'required|string|max:500',
         ]);
 
         // Buscar el proveedor por su RUC
@@ -108,6 +111,8 @@ class ProveedorController extends Controller
         $proveedor->telefono = $request->input('telefono');
         $proveedor->direccion = $request->input('direccion');
         $proveedor->activo = $request->input('activo');
+        $proveedor->notas_proveedor = $request->input('notas_proveedor');
+
 
         // Guardar los cambios en la base de datos
         $proveedor->save();

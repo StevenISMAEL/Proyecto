@@ -3,126 +3,114 @@
 namespace App\Http\Controllers;
 
 use App\Models\Venta;
+use App\Models\DetalleVenta;
+use App\Models\Cliente;
+use App\Models\Producto;
 use Illuminate\Http\Request;
-
 
 class VentaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        // Mostrar todas las ventas con paginación
-        $ventas = Venta::orderBy('fecha_venta', 'desc')->paginate(10);
-        return view('venta.index', compact('ventas'));
-    }
-    public function store(Request $request)
-    {
-        $request->validate([
-            'total' => 'required|numeric',
-            'estado_venta' => 'required|in:Pendiente,Pagado,Cancelado',
-            'metodo_pago' => 'required|string|max:50',
-        ]);
-
-        $venta = new Venta();
-        $venta->total = $request->total;
-        $venta->estado_venta = $request->estado_venta;
-        $venta->metodo_pago = $request->metodo_pago;
-        $venta->save();
-
-        $venta->codigo = 'venta' . str_pad($venta->id, 3, '0', STR_PAD_LEFT); // 'venta001', 'venta002', etc.
-
-
-        return redirect()->route('venta.index')->with('success', 'Venta registrada exitosamente.');
+        $ventas = Venta::with('detalles')->paginate(10);
+        return view('ventas.index', compact('ventas'));
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
-        $lastVenta = Venta::latest()->first();
-
-        $nextCode = 'venta' . str_pad(($lastVenta ? (int)substr($lastVenta->codigo, 5) + 1 : 1), 3, '0', STR_PAD_LEFT);
-
-        return view('venta.create', compact('nextCode'));
+        $clientes = Cliente::all();
+        $productos = Producto::all();
+        return view('ventas.create', compact('clientes', 'productos'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    // Validar los datos de entrada
-
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function store(Request $request)
     {
-        $venta = Venta::findOrFail($id);
-        return view('venta.show', compact('venta'));
+        $validated = $request->validate([
+            'venta.id_ven' => 'required|numeric|digits:13|unique:ventas,id_ven',
+            'venta.cedula_cli' => 'required|string|exists:clientes,cedula_cli',
+            'venta.fecha_emision_ven' => 'required|date',
+            'detalles.*.id_detven' => 'required|string|max:15|unique:detalles_ventas,id_detven',
+            'detalles.*.codigo_pro' => 'required|string|exists:productos,codigo_pro',
+            'detalles.*.cantidad_pro_detven' => 'required|numeric|min:1',
+            'detalles.*.precio_unitario_detven' => 'required|numeric|min:0',
+            'detalles.*.iva_detven' => 'required|numeric|min:0|max:100',
+        ]);
+    
+        $cliente = Cliente::where('cedula_cli', $validated['venta']['cedula_cli'])->first();
+    
+        $venta = Venta::create([
+            'id_ven' => $validated['venta']['id_ven'],
+            'cedula_cli' => $validated['venta']['cedula_cli'],
+            'nombre_cli_ven' => $cliente ? $cliente->nombre_cli : null,
+            'fecha_emision_ven' => $validated['venta']['fecha_emision_ven'],
+        ]);
+    
+        foreach ($request->detalles as $detalle) {
+            $venta->detalles()->create([
+                'id_detven' => $detalle['id_detven'],
+                'codigo_pro' => $detalle['codigo_pro'],
+                'nombre_producto_detven' => Producto::where('codigo_pro', $detalle['codigo_pro'])->first()->nombre_pro,
+                'cantidad_pro_detven' => $detalle['cantidad_pro_detven'],
+                'precio_unitario_detven' => $detalle['precio_unitario_detven'],
+                'iva_detven' => $detalle['iva_detven'],
+            ]);
+        }
+        
+    
+        return redirect()->route('ventas.index')->with('success', 'Venta creada exitosamente.');
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
 {
-    $venta = Venta::findOrFail($id);
+    $venta = Venta::with('detalles')->findOrFail($id); // Carga la venta con sus detalles
+    $clientes = Cliente::all(); // Obtiene todos los clientes
+    $productos = Producto::all(); // Obtiene todos los productos
 
-    return view('venta.edit', compact('venta'));
+    return view('ventas.edit', compact('venta', 'clientes', 'productos'));
 }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        // Validar los datos
-        $request->validate([
-            'total' => 'required|numeric',
-            'estado_venta' => 'required|in:Pendiente,Pagado,Cancelado',
-            'metodo_pago' => 'required|string|max:50',
-        ]);
+public function update(Request $request, $id)
+{
+    $validated = $request->validate([
+        'venta.fecha_emision_ven' => 'required|date',
+        'detalles.*.id_detven' => 'required|string|max:15|unique:detalles_ventas,id_detven,' . $id . ',id_ven',
+        'detalles.*.codigo_pro' => 'required|string|exists:productos,codigo_pro',
+        'detalles.*.cantidad_pro_detven' => 'required|numeric|min:1',
+        'detalles.*.precio_unitario_detven' => 'required|numeric|min:0',
+        'detalles.*.iva_detven' => 'required|numeric|min:0|max:100',
+    ]);
 
-        // Buscar la venta y actualizarla
-        $venta = Venta::findOrFail($id);
-        $venta->update($request->all());
+    $venta = Venta::findOrFail($id); // Busca la venta por ID
+    $venta->update([
+        'fecha_emision_ven' => $validated['venta']['fecha_emision_ven'],
+    ]);
 
-        return redirect()->route('venta.index')->with('success', 'Venta actualizada exitosamente.');
+    // Actualizar o crear detalles de la venta
+    foreach ($request->detalles as $detalle) {
+        DetalleVenta::updateOrCreate(
+            ['id_detven' => $detalle['id_detven']], // Condición para actualizar
+            [
+                'id_ven' => $venta->id_ven,
+                'codigo_pro' => $detalle['codigo_pro'],
+                'nombre_producto_detven' => Producto::where('codigo_pro', $detalle['codigo_pro'])->first()->nombre_pro,
+                'cantidad_pro_detven' => $detalle['cantidad_pro_detven'],
+                'precio_unitario_detven' => $detalle['precio_unitario_detven'],
+                'iva_detven' => $detalle['iva_detven'],
+            ]
+        );
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    return redirect()->route('ventas.index')->with('success', 'Venta actualizada exitosamente.');
+}
+
+    
+
+
     public function destroy($id)
     {
-        // Buscar la venta y eliminarla
         $venta = Venta::findOrFail($id);
+        $venta->detalles()->delete();
         $venta->delete();
 
-        return redirect()->route('venta.index')->with('success', 'Venta eliminada exitosamente.');
+        return redirect()->route('ventas.index')->with('success', 'Venta eliminada exitosamente.');
     }
 }

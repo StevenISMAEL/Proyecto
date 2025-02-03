@@ -7,139 +7,73 @@ use App\Models\Cliente;
 
 class ClienteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // Mostrar lista de clientes
     public function index()
     {
-        // Obtener todos los clientes ordenados por 'id_cliente' en orden descendente, con paginación
-        $clientes = Cliente::orderBy('id_cliente', 'DESC')->paginate(3);
-        return view('cliente.index', compact('clientes'));
+        $clientes = Cliente::paginate(10); // Paginación para mostrar 10 clientes por página
+        return view('clientes.index', compact('clientes'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // Mostrar formulario para crear un nuevo cliente
     public function create()
     {
-        return view('cliente.create');
+        return view('clientes.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // Almacenar un nuevo cliente en la base de datos
     public function store(Request $request)
     {
-        // Validación de los campos del formulario antes de almacenar el cliente
         $request->validate([
-             // Validar que 'id_cliente' sea único
-            'nombre' => 'required',
-            'email' => 'required|email|unique:clientes,email',   // Validar que 'email' sea único y formato válido
-            'telefono' => 'nullable',  // El teléfono es opcional
-            'direccion' => 'nullable', // La dirección también es opcional
+            'cedula_cli' => 'required|unique:clientes,cedula_cli|max:10',
+            'nombre_cli' => 'required|max:100',
+            'direccion_cli' => 'nullable|max:150',
+            'telefono_cli' => 'required|max:10',
+            'correo_cli' => 'required|email|max:100',
+            'fecha_registro_cli' => 'required|date',
         ]);
 
-        // Crear un nuevo cliente en la base de datos usando el modelo Cliente
         Cliente::create($request->all());
 
-        // Redirigir a la lista de clientes con un mensaje de éxito
-        return redirect()->route('cliente.index')->with('success', 'Cliente creado satisfactoriamente');
+        return redirect()->route('clientes.index')->with('success', 'Cliente creado con éxito.');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  string  $id_cliente
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id_cliente)
+    // Mostrar detalles de un cliente
+    public function show($cedula_cli)
     {
-        // Obtener el cliente por su ID
-        $cliente = Cliente::find($id_cliente);
-
-        // Retornar la vista con los detalles del cliente
-        return view('cliente.show', compact('cliente'));
+        $cliente = Cliente::findOrFail($cedula_cli);
+        return view('clientes.show', compact('cliente'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  string  $id_cliente
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id_cliente)
+    // Mostrar formulario para editar un cliente
+    public function edit($cedula_cli)
     {
-        // Obtener el cliente para editarlo
-        $cliente = Cliente::find($id_cliente);
-
-        // Retornar la vista del formulario de edición con los datos del cliente
-        return view('cliente.edit', compact('cliente'));
+        $cliente = Cliente::findOrFail($cedula_cli);
+        return view('clientes.edit', compact('cliente'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $id_cliente
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id_cliente)
+    // Actualizar la información de un cliente
+    public function update(Request $request, $cedula_cli)
     {
         $request->validate([
-            'id_cliente'=> 'required|string|max:20',
-            'nombre' => 'required|string|max:100',
-            'direccion' => 'nullable|string|max:255',  // La dirección puede ser nula
-            'telefono' => 'nullable|string|max:15',  // El teléfono puede ser nulo
-            'email' => 'nullable|email|max:100|unique:clientes,email,' . $id_cliente . ',id_cliente',  // Email único pero permitido el mismo valor en la actualización
+            'nombre_cli' => 'required|max:100',
+            'direccion_cli' => 'nullable|max:150',
+            'telefono_cli' => 'required|max:10',
+            'correo_cli' => 'required|email|max:100',
+            'fecha_registro_cli' => 'required|date',
         ]);
-        // Buscar el cliente por id_cliente
-        $cliente = Cliente::find($id_cliente);
 
-        // Si no se encuentra el cliente, redirigir con mensaje de error
-        if (!$cliente) {
-            return redirect()->route('cliente.index')->with('error', 'Cliente no encontrado');
-        }
+        $cliente = Cliente::findOrFail($cedula_cli);
+        $cliente->update($request->all());
 
-        //dd($id_cliente); 
-        // Validación de los campos antes de actualizar el cliente
-       
-
-        
-
-        // Actualizar los valores del cliente
-        $cliente->nombre = $request->input('nombre');
-        $cliente->direccion = $request->input('direccion');
-        $cliente->telefono = $request->input('telefono');
-        $cliente->email = $request->input('email');
-        $cliente->fecha_registro = $cliente->fecha_registro;  // El campo fecha_registro no se actualiza
-        // El campo created_at y updated_at son manejados automáticamente por Eloquent
-
-        // Guardar los cambios
-        $cliente->save();
-
-        // Redirigir con mensaje de éxito
-        return redirect()->route('cliente.index')->with('success', 'Cliente actualizado satisfactoriamente');
+        return redirect()->route('clientes.index')->with('success', 'Cliente actualizado con éxito.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  string  $id_cliente
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id_cliente)
+    // Eliminar un cliente
+    public function destroy($cedula_cli)
     {
-        // Encontrar el cliente por su id_cliente y eliminarlo
-        Cliente::find($id_cliente)->delete();
+        $cliente = Cliente::findOrFail($cedula_cli);
+        $cliente->delete();
 
-        // Redirigir a la lista de clientes con un mensaje de éxito
-        return redirect()->route('cliente.index')->with('success', 'Cliente eliminado satisfactoriamente');
+        return redirect()->route('clientes.index')->with('success', 'Cliente eliminado con éxito.');
     }
 }

@@ -1,0 +1,109 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #56ab2f, #a8e063);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container-auth {
+    width: 100%;
+    max-width: 500px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    padding: 30px;
+}
+
+.card-auth img {
+    max-width: 180px;
+    margin: 0 auto 20px;
+    display: block;
+}
+
+.card-auth h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 20px;
+    color: #333;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #56ab2f;
+    outline: none;
+    box-shadow: 0 0 5px rgba(86, 171, 47, 0.5);
+}
+
+.btn-auth {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    background: #56ab2f;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-auth:hover {
+    background: #4a9e2a;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Reduce el espacio entre checkbox y texto */
+    margin-top: -10px; /* Ajusta la posición vertical */
+}
+
+.form-check-input {
+    margin: 0; /* Elimina el margen del checkbox */
+}
+
+.form-check-label {
+    font-size: 14px;
+    color: #555;
+    margin: 0; /* Elimina márgenes adicionales */
+}
+
+.text-center {
+    margin-top: 20px;
+}
+
+.text-center a {
+    color: #56ab2f;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.text-center a:hover {
+    color: #4a9e2a;
+    text-decoration: underline;
+}
